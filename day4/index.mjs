@@ -1,4 +1,5 @@
 import { readInput } from '../util';
+import * as R from 'ramda';
 
 const input = readInput();
 
@@ -23,7 +24,7 @@ function parseLine(s) {
 
 function parseTime(input) {
   const [, year, month, day, hour, min] = /^(\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d)$/.exec(input);
-  return { year: Number(year), month: Number(month), day: Number(day), hour: Number(hour), min: Number(min) };
+  return R.map(Number, { year, month, day, hour, min });
 }
 
 function parseGuards() {
