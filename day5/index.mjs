@@ -4,30 +4,21 @@ import * as R from 'ramda';
 // get first line of input (there should only be 1 line anyway..)
 const input = R.head(readInput());
 
-function isSame(a, b) {
-  return a && b && a.charAt(0).toLowerCase() === b.charAt(0).toLowerCase();
-}
-
-function isUpper(c) {
-  return c.charAt(0).toUpperCase() === c.charAt(0);
-}
-
-function isLower(c) {
-  return c.charAt(0).toLowerCase() === c.charAt(0);
-}
-
 /**
  * loop through input string repeatedly collapsing matching tokens
  * @param inputStr
- * @returns {never|string[]}
+ * @returns {string[]}
  */
 function collapse(inputStr) {
   const s = inputStr.split('');
 
+  const isSame = (a, b) => a && b && a.toLowerCase() === b.toLowerCase();
+  const isUppercase = c => c.toUpperCase() === c;
+
   // side effecting fn, modifies `s`
   const collapseIter = (fromIndex = s.length - 1) => {
     for (let i = fromIndex; i > 0; i--) {
-      if (isSame(s[i], s[i - 1]) && (isLower(s[i]) && isUpper(s[i - 1]) || isUpper(s[i]) && isLower(s[i - 1]))) {
+      if (isSame(s[i], s[i - 1]) && (isUppercase(s[i]) ^ isUppercase(s[i - 1]))) {
         s.splice(i - 1, 2);
         return i - 1;
       }
