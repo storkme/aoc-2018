@@ -46,7 +46,7 @@ function part2() {
       // map token to length of collapsed input string with that token removed
       R.map(token => collapse(input.replace(new RegExp(token, 'ig'), '')).length),
       // sort resulting array numerically
-      R.sort((a, b) => a - b),
+      R.sort(R.ascend(R.identity)),
       // take first item from array (e.g. smallest value)
       R.head
     )(tokens)
