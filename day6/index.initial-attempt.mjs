@@ -16,56 +16,43 @@ const [[minX, maxX], [minY, maxY]] = input.reduce(([[minX, maxX], [minY, maxY]],
   [Math.min(minY, y), Math.max(maxY, y)],
 ], [minMax, minMax]);
 
+const top2Distances = R.pipe(
+  R.sort(R.ascend(R.prop('d'))),
+  R.take(2),
+);
+
 function part1() {
   /**
    * Loop through our 'grid' e.g. every cell in our bounding box (as defined above) plus some optional padding
-   * and return an array the same length as the input array, corresponding to the area of each point
+   * and return a map index->size, where index is the array index of the point, and size is the total area belong to
+   * that point in the grid.
    * @param input list of input commands
    * @param padding optional padding to make our simulated grid larger
    */
   const computeSizes = (input, padding = 0) => {
     // obj for tracking which point has the largest surrounding area
-    const areaCounter = Array(input.length).fill(0);
+    const areaCounter = {};
 
     // loop through all points on our 'grid'
     for (let x = minX - padding; x < maxX + padding; x++) {
       for (let y = minY - padding; y < maxY + padding; y++) {
+        // work out distances to each point
+        const distances = input.map(([px, py], i) => ({
+          i,
+          d: manhattanDistance(x, y, px, py),
+        }));
 
-        // keep track of distances while looping through inputs
-        const pointsDistances = Array(input.length);
+        // sort the distances and take the first 2 values (e.g. the 2 closest points)
+        const [minDistance, secondMinDistance] = top2Distances(distances);
 
-        // keep track of lowest distance + index while iterating
-        let minDistance = Number.MAX_SAFE_INTEGER;
-        let minDistanceIndex;
-
-        // loop through inputs`
-        for (let i = 0; i < input.length; i++) {
-          const [px, py] = input[i];
-          // calculate distance from this point
-          pointsDistances[i] = manhattanDistance(x, y, px, py);
-          minDistance = Math.min(minDistance, pointsDistances[i]);
-        }
-
-        // loop through point distances, get the array index of the min value
-        // and if 2 points have the same min distance, we need to discount this point
-        let pointFound = 0;
-        for (let i = 0; i < input.length; i++) {
-          if (pointsDistances[i] === minDistance) {
-            pointFound++;
-            if (pointFound === 1) {
-              minDistanceIndex = i;
-            } else if (pointFound === 2) {
-              break;
-            }
-          }
-        }
-
-        // only count this cell if we found this point once in our list of point distances
-        if (pointFound === 1) {
-          areaCounter[minDistanceIndex] = areaCounter[minDistanceIndex] + 1;
+        // check to see if the 2 closest points aren't equal
+        if (minDistance.d !== secondMinDistance.d) {
+          // increment the size of this points area
+          areaCounter[minDistance.i] = areaCounter[minDistance.i] + 1 || 1;
         }
       }
     }
+
     return areaCounter;
   };
 
@@ -76,7 +63,7 @@ function part1() {
 
   // take the intersection of the two sets of sizes
   // this means we're excluding sizes that got larger as our grid did
-  const boundedSizes = R.intersection(sizes, largerSizes);
+  const boundedSizes = R.intersection(R.values(sizes), R.values(largerSizes));
 
   // sort the sizes descendingly and take the first one
   console.log(
