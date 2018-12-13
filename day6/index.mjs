@@ -38,7 +38,7 @@ function part1() {
         let minDistance = Number.MAX_SAFE_INTEGER;
         let minDistanceIndex;
 
-        // loop through inputs`
+        // loop through inputs
         for (let i = 0; i < input.length; i++) {
           const [px, py] = input[i];
           // calculate distance from this point
